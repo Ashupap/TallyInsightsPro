@@ -1,10 +1,12 @@
 import requests
 import xml.etree.ElementTree as ET
 from datetime import datetime, timedelta
-import streamlit as st
 import pandas as pd
 from typing import Dict, List, Optional, Any
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class TallyAPIClient:
     """Client for connecting to Tally Prime XML API"""
@@ -20,7 +22,7 @@ class TallyAPIClient:
             response = self._send_xml_request("<ENVELOPE><HEADER><VERSION>1</VERSION><TALLYREQUEST>PING</TALLYREQUEST></HEADER></ENVELOPE>")
             return response is not None
         except Exception as e:
-            st.error(f"Connection test failed: {str(e)}")
+            logger.error(f"Connection test failed: {str(e)}")
             return False
     
     def _send_xml_request(self, xml_data: str) -> Optional[ET.Element]:
@@ -43,13 +45,13 @@ class TallyAPIClient:
             return root
             
         except requests.exceptions.RequestException as e:
-            st.error(f"Request failed: {str(e)}")
+            logger.error(f"Request failed: {str(e)}")
             return None
         except ET.ParseError as e:
-            st.error(f"XML parsing failed: {str(e)}")
+            logger.error(f"XML parsing failed: {str(e)}")
             return None
         except Exception as e:
-            st.error(f"Unexpected error: {str(e)}")
+            logger.error(f"Unexpected error: {str(e)}")
             return None
     
     def get_company_list(self) -> List[Dict[str, str]]:
@@ -78,7 +80,7 @@ class TallyAPIClient:
                             'guid': company.get('GUID', ''),
                         })
             except Exception as e:
-                st.error(f"Error parsing company list: {str(e)}")
+                logger.error(f"Error parsing company list: {str(e)}")
         
         return companies
     
@@ -119,7 +121,7 @@ class TallyAPIClient:
                     }
                     sales_data.append(voucher_data)
             except Exception as e:
-                st.error(f"Error parsing sales data: {str(e)}")
+                logger.error(f"Error parsing sales data: {str(e)}")
         
         return pd.DataFrame(sales_data)
     
@@ -159,7 +161,7 @@ class TallyAPIClient:
                     }
                     purchase_data.append(voucher_data)
             except Exception as e:
-                st.error(f"Error parsing purchase data: {str(e)}")
+                logger.error(f"Error parsing purchase data: {str(e)}")
         
         return pd.DataFrame(purchase_data)
     
@@ -199,7 +201,7 @@ class TallyAPIClient:
                     }
                     inventory_data.append(item_data)
             except Exception as e:
-                st.error(f"Error parsing inventory data: {str(e)}")
+                logger.error(f"Error parsing inventory data: {str(e)}")
         
         return pd.DataFrame(inventory_data)
     
@@ -240,7 +242,7 @@ class TallyAPIClient:
                     
                     outstanding_data.append(item_data)
             except Exception as e:
-                st.error(f"Error parsing outstanding data: {str(e)}")
+                logger.error(f"Error parsing outstanding data: {str(e)}")
         
         return pd.DataFrame(outstanding_data)
     
@@ -297,7 +299,7 @@ class TallyAPIClient:
                 balance_sheet['liabilities']['total'] = balance_sheet['liabilities']['current'] + balance_sheet['liabilities']['long_term']
                 
             except Exception as e:
-                st.error(f"Error parsing balance sheet: {str(e)}")
+                logger.error(f"Error parsing balance sheet: {str(e)}")
         
         return balance_sheet
     
@@ -352,7 +354,7 @@ class TallyAPIClient:
                 profit_loss['net_profit'] = profit_loss['gross_profit'] - profit_loss['expenses']
                 
             except Exception as e:
-                st.error(f"Error parsing P&L data: {str(e)}")
+                logger.error(f"Error parsing P&L data: {str(e)}")
         
         return profit_loss
     
@@ -389,21 +391,18 @@ class TallyAPIClient:
         except (ValueError, TypeError, IndexError):
             return 0.0
 
-# Cached data fetching functions
-@st.cache_data(ttl=300)  # Cache for 5 minutes
+# Data fetching functions (caching can be implemented with functools.lru_cache if needed)
 def fetch_cached_sales_data(server_url: str, from_date: str, to_date: str):
-    """Cached version of sales data fetching"""
+    """Fetch sales data"""
     client = TallyAPIClient(server_url)
     return client.get_sales_data(from_date, to_date)
 
-@st.cache_data(ttl=300)
 def fetch_cached_purchase_data(server_url: str, from_date: str, to_date: str):
-    """Cached version of purchase data fetching"""
+    """Fetch purchase data"""
     client = TallyAPIClient(server_url)
     return client.get_purchase_data(from_date, to_date)
 
-@st.cache_data(ttl=600)  # Cache for 10 minutes
 def fetch_cached_inventory_data(server_url: str):
-    """Cached version of inventory data fetching"""
+    """Fetch inventory data"""
     client = TallyAPIClient(server_url)
     return client.get_inventory_data()
