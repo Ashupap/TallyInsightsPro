@@ -91,7 +91,7 @@ Start-Sleep -Seconds 3
 # Start frontend server in new window
 Start-Process powershell -ArgumentList "-NoExit", "-Command", "Set-Location client; npx vite --port 5000 --host 0.0.0.0" -WindowStyle Normal
 
-Write-Host "[5/5] Servers started successfully`!" -ForegroundColor Green
+Write-Host "[5/5] Servers started successfully" -ForegroundColor Green
 Write-Host ""
 Write-Host "Opening browser..." -ForegroundColor Yellow
 Start-Sleep -Seconds 5
@@ -99,7 +99,7 @@ Start-Process "http://localhost:5000"
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Deployment Complete`!" -ForegroundColor Green
+Write-Host "Deployment Complete" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Access the dashboard at: http://localhost:5000" -ForegroundColor White
@@ -110,6 +110,6 @@ Write-Host "  Manager  - Username: manager  Password: manager123" -ForegroundCol
 Write-Host "  Viewer   - Username: viewer   Password: viewer123" -ForegroundColor White
 Write-Host ""
 Write-Host "Tally Server URL: http://localhost:9000" -ForegroundColor White
-Write-Host "Make sure Tally Prime is running with web API enabled`!" -ForegroundColor Yellow
+Write-Host "Make sure Tally Prime is running with web API enabled" -ForegroundColor Yellow
 Write-Host ""
 pause
